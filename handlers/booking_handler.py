@@ -116,31 +116,37 @@ async def booking_handler_time(callback: CallbackQuery, state: FSMContext):
 @router.callback_query(Booking.confirm)
 async def booking_handler_confirm(callback: CallbackQuery, state: FSMContext):
     data = await state.get_data()
+    if data == "cancel_booking":
+        user_id = callback.from_user.id
+        admin_id = config.admin_id
+        await callback.message.edit_text("Бронирование отменено ❌", reply_markup=main_menu_keyboard(user_id=user_id, admin_id=admin_id))
+        await callback.answer()
+        await state.clear()
+    else:
+        user_id = callback.from_user.id
+        admin_id = config.admin_id
+        await callback.message.edit_text('Запись подтверждена ✅', reply_markup=main_menu_keyboard(user_id=user_id, admin_id=admin_id))
 
-    user_id = callback.from_user.id
-    admin_id = config.admin_id
-    await callback.message.edit_text('Запись подтверждена ✅', reply_markup=main_menu_keyboard(user_id=user_id, admin_id=admin_id))
-
-    text = (
-        f"📸 Новая заявка!\n\n"
-        f"👤 Клиент: @{callback.from_user.username or 'Без username'}\n"
-        f"🆔 ID: {callback.from_user.id}\n"
-        f"Тип: {data['type_shoot']}\n"
-        f"Дата: {data['date']}\n"
-        f"Время: {data['time']}"
-    )
-    await callback.bot.send_message(chat_id=photographer_id, text=text)
-
-    await add_photo_session(
-        user_id=callback.from_user.id,
-        username=callback.from_user.username,
-        session_type=data['type_shoot'],
-        session_date=data['date'],  # формат ГГГГ-ММ-ДД
-        session_time=data['time'],  # формат ЧЧ:ММ
+        text = (
+            f"📸 Новая заявка!\n\n"
+            f"👤 Клиент: @{callback.from_user.username or 'Без username'}\n"
+            f"🆔 ID: {callback.from_user.id}\n"
+            f"Тип: {data['type_shoot']}\n"
+            f"Дата: {data['date']}\n"
+            f"Время: {data['time']}"
         )
+        await callback.bot.send_message(chat_id=photographer_id, text=text)
 
-    await state.clear()
-    await callback.answer()
+        await add_photo_session(
+            user_id=callback.from_user.id,
+            username=callback.from_user.username,
+            session_type=data['type_shoot'],
+            session_date=data['date'],  # формат ГГГГ-ММ-ДД
+            session_time=data['time'],  # формат ЧЧ:ММ
+            )
+
+        await state.clear()
+        await callback.answer()
 
 
 

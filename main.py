@@ -28,7 +28,7 @@ async def main():
     dp.include_router(portfolio.router)
   # это важно!
 
-    await dp.start_polling(bot, dp_pool=pool)
+    await dp.start_polling(bot)
 
 if __name__ == "__main__":
     asyncio.run(main())
