@@ -5,12 +5,13 @@ from config import load_config
 
 pool: Optional[asyncpg.pool.Pool] = None
 
-config = load_config()
+
 
 pool = None
 
 async def create_pool():
     global pool
+    config = load_config()
     pool = await asyncpg.create_pool(dsn=config.db)
     return pool
 
